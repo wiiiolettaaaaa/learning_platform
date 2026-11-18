@@ -1,0 +1,7 @@
+{
+  "variables": {"title": "Змінні та типи даних", "prerequisites": []},
+  "conditions": {"title": "Умови", "prerequisites": ["variables"]},
+  "loops": {"title": "Цикли", "prerequisites": ["conditions"]},
+  "functions": {"title": "Функції", "prerequisites": ["variables"]},
+  "recursion": {"title": "Рекурсія", "prerequisites": ["functions", "loops"]}
+}
