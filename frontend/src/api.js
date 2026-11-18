@@ -15,5 +15,7 @@ export const api = {
   question: (topicId, exclude) =>
     request(`/topics/${topicId}/question${exclude ? `?exclude=${exclude}` : ""}`),
   check: (body) => request("/answers/check", { method: "POST", body: JSON.stringify(body) }),
+  teacherStudents: () => request("/teacher/students"),
+  teacherTopics: () => request("/teacher/topics"),
   profile: (uid) => request(`/profile/${encodeURIComponent(uid)}`),
 };
