@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from .graph import KnowledgeGraph
 from .knowledge import update_mastery
 from .recommender import recommend
-from .activity import ActivityStats, dropout_risk
+from .activity import build_stats, dropout_risk
 
 BASE = Path(__file__).parent.parent
 graph = KnowledgeGraph.from_json(BASE / "data" / "sample_course.json")
@@ -28,7 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# user_id -> {"mastery": {topic: p}, "last": {topic: datetime}, "fails": int}
+# user_id -> {"mastery": {topic: p}, "last": {topic: datetime}, "fails": int, "attempts": [datetime]}
 DB: dict = {}
 
 
@@ -46,7 +46,7 @@ class AnswerCheck(BaseModel):
 
 
 def _user(uid):
-    return DB.setdefault(uid, {"mastery": {}, "last": {}, "fails": 0})
+    return DB.setdefault(uid, {"mastery": {}, "last": {}, "fails": 0, "attempts": []})
 
 
 def _apply(uid: str, topic_id: str, correct: bool) -> float:
@@ -55,7 +55,9 @@ def _apply(uid: str, topic_id: str, correct: bool) -> float:
         raise HTTPException(404, "Невідома тема")
     u = _user(uid)
     u["mastery"][topic_id] = update_mastery(u["mastery"].get(topic_id, 0.2), correct)
-    u["last"][topic_id] = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc)
+    u["last"][topic_id] = now
+    u["attempts"].append(now)
     u["fails"] = 0 if correct else u["fails"] + 1
     return round(u["mastery"][topic_id], 3)
 
@@ -99,7 +101,7 @@ def submit_answer(a: Answer):
 def profile(user_id: str):
     u = _user(user_id)
     return {"mastery": {t: round(p, 3) for t, p in u["mastery"].items()},
-            "dropout_risk": dropout_risk(ActivityStats(fail_streak=u["fails"]))}
+            "dropout_risk": dropout_risk(build_stats(u["attempts"], u["fails"], datetime.now(timezone.utc)))}
 
 
 @app.get("/recommendation/{user_id}")
