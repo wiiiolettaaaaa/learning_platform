@@ -1,0 +1,22 @@
+{
+  "variables": [
+    {"id": "v1", "text": "Який тип має значення 3.14 у Python?", "options": ["int", "float", "str", "bool"], "answer": 1},
+    {"id": "v2", "text": "Який рядок коректно створює змінну x зі значенням 5?", "options": ["x = 5", "int x = 5", "x := 5", "var x = 5"], "answer": 0}
+  ],
+  "conditions": [
+    {"id": "c1", "text": "Яке ключове слово задає додаткову умову між if та else?", "options": ["elseif", "else if", "elif", "otherwise"], "answer": 2},
+    {"id": "c2", "text": "Яке значення має вираз 5 > 3 and 2 > 4?", "options": ["True", "False", "None", "Помилка"], "answer": 1}
+  ],
+  "loops": [
+    {"id": "l1", "text": "Скільки разів виконається тіло циклу for i in range(3)?", "options": ["2", "3", "4", "Нескінченно"], "answer": 1},
+    {"id": "l2", "text": "Яке ключове слово достроково завершує цикл?", "options": ["stop", "exit", "break", "skip"], "answer": 2}
+  ],
+  "functions": [
+    {"id": "f1", "text": "Яке ключове слово оголошує функцію в Python?", "options": ["func", "def", "function", "fn"], "answer": 1},
+    {"id": "f2", "text": "Що повертає функція, у якій немає оператора return?", "options": ["0", "Порожній рядок", "None", "False"], "answer": 2}
+  ],
+  "recursion": [
+    {"id": "r1", "text": "Що потрібно рекурсивній функції, щоб вона не виконувалась нескінченно?", "options": ["Цикл while", "Базовий випадок", "Глобальна змінна", "Декоратор"], "answer": 1},
+    {"id": "r2", "text": "Чому дорівнює факторіал 4 (4!)?", "options": ["10", "12", "24", "16"], "answer": 2}
+  ]
+}
