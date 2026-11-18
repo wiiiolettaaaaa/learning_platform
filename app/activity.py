@@ -1,5 +1,6 @@
 """Аналіз навчальної активності: простий індикатор ризику відсіву."""
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 
 
 @dataclass
@@ -16,3 +17,13 @@ def dropout_risk(s: ActivityStats) -> float:
     if s.attempts_last_week == 0:
         risk += 0.2
     return round(min(risk, 1.0), 2)
+
+
+def build_stats(attempts: list, fail_streak: int, now: datetime) -> ActivityStats:
+    """Збирає статистику активності зі списку часових міток спроб."""
+    week_ago = now - timedelta(days=7)
+    return ActivityStats(
+        days_inactive=(now - max(attempts)).days if attempts else 0,
+        fail_streak=fail_streak,
+        attempts_last_week=sum(1 for t in attempts if t >= week_ago),
+    )
