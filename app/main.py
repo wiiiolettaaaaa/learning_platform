@@ -12,7 +12,8 @@ from pydantic import BaseModel
 from .graph import KnowledgeGraph
 from .knowledge import update_mastery
 from .recommender import recommend
-from .activity import build_stats, dropout_risk
+from .activity import build_stats
+from .risk_model import mean_mastery, risk
 from .teacher import student_summary, topic_summary
 
 BASE = Path(__file__).parent.parent
@@ -106,7 +107,8 @@ def submit_answer(a: Answer):
 def profile(user_id: str):
     u = _user(user_id)
     return {"mastery": {t: round(p, 3) for t, p in u["mastery"].items()},
-            "dropout_risk": dropout_risk(build_stats(u["attempts"], u["fails"], datetime.now(timezone.utc)))}
+            "dropout_risk": risk(build_stats(u["attempts"], u["fails"], datetime.now(timezone.utc)),
+                                 mean_mastery(u["mastery"]))}
 
 
 @app.get("/recommendation/{user_id}")

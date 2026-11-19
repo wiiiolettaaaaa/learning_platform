@@ -1,0 +1,25 @@
+{
+  "data": "synthetic (ml/simulate.py)",
+  "horizon_days": 14,
+  "students": 4000,
+  "rows": 30845,
+  "test_rows": 7717,
+  "positive_rate": 0.567,
+  "auc_rules": 0.971,
+  "auc_logreg": 0.982,
+  "auc_gradient_boosting": 0.984,
+  "logreg_accuracy": 0.928,
+  "logreg_precision": 0.95,
+  "logreg_recall": 0.925,
+  "early_rows": 3415,
+  "early_positive_rate": 0.11,
+  "early_auc_rules": 0.782,
+  "early_auc_logreg": 0.882,
+  "early_auc_gradient_boosting": 0.897,
+  "logreg_coefficients": {
+    "days_inactive": 6.307,
+    "fail_streak": 0.314,
+    "attempts_last_week": -1.501,
+    "avg_mastery": -0.134
+  }
+}

@@ -1,20 +1,21 @@
 """Зведення для кабінету викладача: стан студентів і складні теми."""
 from datetime import datetime
 
-from .activity import build_stats, dropout_risk
+from .activity import build_stats
+from .risk_model import mean_mastery, risk
 
 
 def student_summary(uid: str, u: dict, now: datetime) -> dict:
     stats = build_stats(u["attempts"], u["fails"], now)
     mastery = u["mastery"]
-    avg = round(sum(mastery.values()) / len(mastery), 3) if mastery else 0.0
+    avg = mean_mastery(mastery)
     return {
         "user_id": uid,
-        "avg_mastery": avg,
+        "avg_mastery": round(avg, 3),
         "topics_started": len(mastery),
         "attempts_last_week": stats.attempts_last_week,
         "days_inactive": stats.days_inactive,
-        "dropout_risk": dropout_risk(stats),
+        "dropout_risk": risk(stats, avg),
     }
 
 
