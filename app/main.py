@@ -13,6 +13,7 @@ from .graph import KnowledgeGraph
 from .knowledge import update_mastery
 from .recommender import recommend
 from .activity import build_stats, dropout_risk
+from .teacher import student_summary, topic_summary
 
 BASE = Path(__file__).parent.parent
 graph = KnowledgeGraph.from_json(BASE / "data" / "sample_course.json")
@@ -28,7 +29,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# user_id -> {"mastery": {topic: p}, "last": {topic: datetime}, "fails": int, "attempts": [datetime]}
+# user_id -> {"mastery": {topic: p}, "last": {topic: datetime}, "fails": int, "attempts": [datetime],
+#                "results": {topic: {"correct": n, "total": n}}}
 DB: dict = {}
 
 
@@ -46,7 +48,7 @@ class AnswerCheck(BaseModel):
 
 
 def _user(uid):
-    return DB.setdefault(uid, {"mastery": {}, "last": {}, "fails": 0, "attempts": []})
+    return DB.setdefault(uid, {"mastery": {}, "last": {}, "fails": 0, "attempts": [], "results": {}})
 
 
 def _apply(uid: str, topic_id: str, correct: bool) -> float:
@@ -58,6 +60,9 @@ def _apply(uid: str, topic_id: str, correct: bool) -> float:
     now = datetime.now(timezone.utc)
     u["last"][topic_id] = now
     u["attempts"].append(now)
+    r = u["results"].setdefault(topic_id, {"correct": 0, "total": 0})
+    r["total"] += 1
+    r["correct"] += int(correct)
     u["fails"] = 0 if correct else u["fails"] + 1
     return round(u["mastery"][topic_id], 3)
 
@@ -111,3 +116,18 @@ def recommendation(user_id: str):
     days = {t: (now - d).total_seconds() / 86400 for t, d in u["last"].items()}
     r = recommend(graph, u["mastery"], days)
     return r.__dict__ if r else {"message": "Курс завершено"}
+
+
+@app.get("/teacher/students")
+def teacher_students():
+    """Усі студенти: засвоєння, активність, ризик відсіву (найризикованіші першими)."""
+    now = datetime.now(timezone.utc)
+    rows = [student_summary(uid, u, now) for uid, u in DB.items()]
+    return sorted(rows, key=lambda r: -r["dropout_risk"])
+
+
+@app.get("/teacher/topics")
+def teacher_topics():
+    """Зведення за темами: кількість спроб, частка правильних, середнє засвоєння."""
+    return [{**row, "title": graph.title(row["topic_id"])}
+            for row in topic_summary(DB, list(graph.topics))]
